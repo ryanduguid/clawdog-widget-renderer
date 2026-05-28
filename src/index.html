@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClawDog Widget Renderer</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 2em auto; padding: 0 1em; color: #222; }
+    h1 { font-size: 1.4em; }
+    ul { padding-left: 1.4em; }
+    li { margin: 0.4em 0; }
+    a { color: #0a4; }
+    code { background: #f4f4f4; padding: 0.1em 0.3em; border-radius: 3px; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+  <h1>clawdog-widget-renderer</h1>
+  <p>Schema-driven HTML widget renderer for ClawDog calculator surfaces. Vanilla JS, no framework, iframe-embeddable.</p>
+
+  <h2>Available widgets</h2>
+  <ul>
+    <li><a href="widgets/gl-detail-csv-uploader/"><code>gl-detail-csv-uploader</code></a> — Upload a GL Detail CSV per the ClawDog spec.</li>
+  </ul>
+
+  <h2>How to embed</h2>
+  <p>Each widget renders standalone at its own URL. Embed in a host shell via iframe:</p>
+  <pre><code>&lt;iframe src="https://www.lodgeit.org/clawdog-widget-renderer/widgets/gl-detail-csv-uploader/"
+        width="600" height="400"
+        sandbox="allow-scripts allow-forms allow-same-origin"&gt;&lt;/iframe&gt;</code></pre>
+
+  <h2>Documentation</h2>
+  <p>See the <a href="https://github.com/lodgeit-labs/clawdog-widget-renderer">README on GitHub</a> for the full API surface, how to add a widget, and the JSON Schema → form rendering contract.</p>
+</body>
+</html>

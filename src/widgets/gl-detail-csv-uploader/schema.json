@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://www.lodgeit.org/clawdog-widget-renderer/widgets/gl-detail-csv-uploader/schema.json",
+  "title": "GL Detail CSV Upload",
+  "description": "Upload a General Ledger Detail CSV per the ClawDog GL Detail spec. The CSV is POSTed to the calc-api for ingestion + classification. The agent receives a staging summary and may follow up with operator-approval-queue actions per Standing Rule #14.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "entityId",
+    "periodUri",
+    "glDetailCsv"
+  ],
+  "properties": {
+    "entityId": {
+      "type": "string",
+      "title": "Entity",
+      "description": "URN of the entity whose GL Detail this is (e.g. urn:lodgeit:entity:bluey-builders-pty-ltd).",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "periodUri": {
+      "type": "string",
+      "title": "Period",
+      "description": "URN of the reporting period (e.g. urn:sbrm:period:au:fy2025).",
+      "enum": [
+        "urn:sbrm:period:au:fy2024",
+        "urn:sbrm:period:au:fy2025",
+        "urn:sbrm:period:au:fy2026",
+        "urn:sbrm:period:uk:fy2024",
+        "urn:sbrm:period:uk:fy2025",
+        "urn:sbrm:period:uk:fy2026"
+      ]
+    },
+    "glDetailCsv": {
+      "type": "string",
+      "title": "GL Detail CSV file",
+      "description": "CSV file with columns per the ClawDog GL Detail spec: date, account, amount, narration, transaction_id, [optional: counter_account, currency, tax_code].",
+      "contentMediaType": "text/csv"
+    },
+    "dryRun": {
+      "type": "boolean",
+      "title": "Dry run only",
+      "description": "If checked, the calc-api stages the batch and returns a dry-run-diff but does NOT post to the GL. Use this for Standing-Rule-#14 operator-approval-queue preview before committing."
+    }
+  }
+}

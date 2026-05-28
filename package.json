@@ -1,0 +1,37 @@
+{
+  "name": "@lodgeit-labs/clawdog-widget-renderer",
+  "version": "0.1.0",
+  "description": "Schema-driven HTML widget renderer for ClawDog calculator surfaces. Vanilla JS, no framework, iframe-embeddable.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "homepage": "https://www.lodgeit.org/clawdog-widget-renderer/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lodgeit-labs/clawdog-widget-renderer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lodgeit-labs/clawdog-widget-renderer/issues"
+  },
+  "scripts": {
+    "test": "node --test tests/test_schema_parsing.spec.mjs tests/test_render_csv_uploader.spec.mjs",
+    "test:production-bundle": "node --test tests/test_production_bundle.spec.mjs",
+    "test:all": "node --test tests/"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "files": [
+    "src/",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "clawdog",
+    "lodgeit",
+    "widget",
+    "json-schema",
+    "iframe",
+    "vanilla-js",
+    "fbt",
+    "sbrm"
+  ]
+}

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GL Detail CSV Uploader — ClawDog</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 720px; margin: 1.5em auto; padding: 0 1em; color: #222; }
+    .cw-form { display: flex; flex-direction: column; gap: 1em; }
+    .cw-form-title { font-size: 1.3em; margin: 0 0 0.2em 0; }
+    .cw-form-description { color: #555; margin: 0 0 0.8em 0; }
+    .cw-field { display: flex; flex-direction: column; gap: 0.3em; }
+    .cw-field label { font-weight: 600; }
+    .cw-field input[type="text"], .cw-field input[type="number"], .cw-field input[type="date"], .cw-field input[type="email"], .cw-field input[type="url"], .cw-field select { padding: 0.5em; font-size: 1em; border: 1px solid #ccc; border-radius: 4px; }
+    .cw-field input[type="file"] { padding: 0.4em 0; }
+    .cw-field input[type="checkbox"] { width: 1.2em; height: 1.2em; align-self: flex-start; }
+    .cw-help { color: #666; font-size: 0.85em; }
+    .cw-required { color: #c00; }
+    .cw-submit { margin-top: 0.5em; }
+    .cw-submit button { padding: 0.6em 1.2em; font-size: 1em; background: #0a4; color: white; border: 0; border-radius: 4px; cursor: pointer; }
+    .cw-submit button:hover { background: #073; }
+    .cw-status { margin-top: 1em; padding: 1em; border-radius: 4px; }
+    .cw-status.ok { background: #efe; color: #050; border: 1px solid #0a4; }
+    .cw-status.err { background: #fee; color: #500; border: 1px solid #a40; }
+    pre { background: #f4f4f4; padding: 0.5em; border-radius: 4px; overflow-x: auto; font-size: 0.85em; }
+  </style>
+</head>
+<body>
+  <div id="cw-widget-mount"></div>
+  <div id="cw-status" style="display: none;"></div>
+
+  <script type="module">
+    import { renderFormFromSchema } from '../../render.js';
+    import { handleSubmit } from './handler.js';
+
+    async function loadJson(url) {
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error(`Failed to load ${url}: HTTP ${resp.status}`);
+      return resp.json();
+    }
+
+    async function main() {
+      const [schema, manifest] = await Promise.all([
+        loadJson('./schema.json'),
+        loadJson('./widget.json'),
+      ]);
+
+      const container = document.getElementById('cw-widget-mount');
+      const { form, getValues } = renderFormFromSchema(schema, container);
+
+      const statusEl = document.getElementById('cw-status');
+
+      form.addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        statusEl.style.display = 'none';
+        statusEl.textContent = '';
+        statusEl.className = '';
+
+        const values = getValues();
+        const result = await handleSubmit(values, manifest);
+
+        statusEl.style.display = 'block';
+        if (result.ok) {
+          statusEl.className = 'cw-status ok';
+          statusEl.innerHTML =
+            `<strong>Success.</strong> HTTP ${result.status}.<pre>${escapeHtml(JSON.stringify(result.body, null, 2))}</pre>`;
+        } else if (result.status) {
+          statusEl.className = 'cw-status err';
+          statusEl.innerHTML =
+            `<strong>Server error.</strong> HTTP ${result.status}.<pre>${escapeHtml(JSON.stringify(result.body, null, 2))}</pre>`;
+        } else {
+          statusEl.className = 'cw-status err';
+          statusEl.textContent = `Network error: ${result.error}`;
+        }
+      });
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    }
+
+    main().catch(err => {
+      const statusEl = document.getElementById('cw-status');
+      statusEl.style.display = 'block';
+      statusEl.className = 'cw-status err';
+      statusEl.textContent = `Widget load error: ${err.message}`;
+    });
+  </script>
+</body>
+</html>

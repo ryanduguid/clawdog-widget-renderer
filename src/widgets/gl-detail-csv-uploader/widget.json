@@ -1,0 +1,12 @@
+{
+  "name": "gl-detail-csv-uploader",
+  "version": "0.1.0",
+  "title": "GL Detail CSV Uploader",
+  "description": "Upload a General Ledger Detail CSV to the ClawDog calculator-API for ingestion + classification.",
+  "schema_ref": "./schema.json",
+  "calc_api_url": "https://fbt-calculator-api-8340695160.australia-southeast1.run.app/v1/gl-detail/ingest",
+  "calc_api_url_note": "ENDPOINT NOT YET LIVE on clawdog-calculator-api as of mc05-2026-05-28; this widget renders + validates client-side today; the POST destination lands when the GL-Detail ingest route is added to clawdog-calculator-api (per CLAWDOG/151 §6). For mc05 acceptance: form renders + submission shows a stub status; production POST gated on the route's existence.",
+  "response_renderer": "default",
+  "license": "Apache-2.0",
+  "license_url": "https://github.com/lodgeit-labs/clawdog-widget-renderer/blob/main/LICENSE"
+}

@@ -1,0 +1,65 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: node test + bundle gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Hermetic spec tests (schema parsing + GL Detail uploader)
+        run: npm test
+
+      - name: Validate JSON files are parseable
+        run: |
+          set -e
+          for f in $(find src -name "*.json"); do
+            echo "Validating $f"
+            python3 -c "import json,sys; json.load(open('$f'))"
+          done
+
+      - name: Verify required entry files exist
+        run: |
+          set -e
+          test -f src/index.html
+          test -f src/render.js
+          test -f src/widgets/gl-detail-csv-uploader/index.html
+          test -f src/widgets/gl-detail-csv-uploader/schema.json
+          test -f src/widgets/gl-detail-csv-uploader/widget.json
+          test -f src/widgets/gl-detail-csv-uploader/handler.js
+          test -f .nojekyll
+          test -f LICENSE
+          test -f README.md
+          echo "All required entry files present"
+
+  production-bundle-gate:
+    name: production-bundle gate (SR #12 sibling)
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Wait briefly for Pages to redeploy
+        run: sleep 45
+
+      - name: Production-bundle assertions against live URL
+        env:
+          RUN_PRODUCTION_BUNDLE_TEST: '1'
+          WIDGET_RENDERER_BASE_URL: https://www.lodgeit.org/clawdog-widget-renderer
+        run: npm run test:production-bundle
