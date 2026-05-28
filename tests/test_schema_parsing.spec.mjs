@@ -15,7 +15,7 @@ import { installDomMock } from './_test_helpers.mjs';
 // asynchronously after the module loads, so any synchronous uninstall here would
 // remove the mock before tests fire.
 installDomMock();
-const { renderFormFromSchema } = await import('../src/render.js');
+const { renderFormFromSchema } = await import('../render.js');
 
 test('renderFormFromSchema rejects non-object schemas', () => {
   assert.throws(
