@@ -25,7 +25,7 @@ jobs:
       - name: Validate JSON files are parseable
         run: |
           set -e
-          for f in $(find src -name "*.json"); do
+          for f in $(find widgets -name "*.json") package.json; do
             echo "Validating $f"
             python3 -c "import json,sys; json.load(open('$f'))"
           done
@@ -33,12 +33,12 @@ jobs:
       - name: Verify required entry files exist
         run: |
           set -e
-          test -f src/index.html
-          test -f src/render.js
-          test -f src/widgets/gl-detail-csv-uploader/index.html
-          test -f src/widgets/gl-detail-csv-uploader/schema.json
-          test -f src/widgets/gl-detail-csv-uploader/widget.json
-          test -f src/widgets/gl-detail-csv-uploader/handler.js
+          test -f index.html
+          test -f render.js
+          test -f widgets/gl-detail-csv-uploader/index.html
+          test -f widgets/gl-detail-csv-uploader/schema.json
+          test -f widgets/gl-detail-csv-uploader/widget.json
+          test -f widgets/gl-detail-csv-uploader/handler.js
           test -f .nojekyll
           test -f LICENSE
           test -f README.md

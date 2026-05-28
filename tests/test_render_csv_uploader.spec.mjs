@@ -15,11 +15,11 @@ import { installDomMock } from './_test_helpers.mjs';
 // Install DOM mock BEFORE importing render.js. Do NOT uninstall — node:test
 // runs tests asynchronously after module load.
 installDomMock();
-const { renderFormFromSchema } = await import('../src/render.js');
+const { renderFormFromSchema } = await import('../render.js');
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const schemaPath = path.resolve(here, '../src/widgets/gl-detail-csv-uploader/schema.json');
-const manifestPath = path.resolve(here, '../src/widgets/gl-detail-csv-uploader/widget.json');
+const schemaPath = path.resolve(here, '../widgets/gl-detail-csv-uploader/schema.json');
+const manifestPath = path.resolve(here, '../widgets/gl-detail-csv-uploader/widget.json');
 
 const schemaText = await readFile(schemaPath, 'utf8');
 const schema = JSON.parse(schemaText);
