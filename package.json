@@ -13,14 +13,17 @@
     "url": "https://github.com/lodgeit-labs/clawdog-widget-renderer/issues"
   },
   "scripts": {
-    "test": "node --test tests/test_schema_parsing.spec.mjs tests/test_render_csv_uploader.spec.mjs",
+    "test": "node --test tests/test_schema_parsing.spec.mjs tests/test_render_csv_uploader.spec.mjs tests/test_package_contents.spec.mjs",
     "test:production-bundle": "node --test tests/test_production_bundle.spec.mjs",
     "test:all": "node --test tests/"
   },
   "dependencies": {},
   "devDependencies": {},
   "files": [
-    "src/",
+    ".nojekyll",
+    "index.html",
+    "render.js",
+    "widgets/",
     "README.md",
     "LICENSE"
   ],
