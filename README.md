@@ -74,15 +74,15 @@ The widget should render a form. Submission POSTs to whatever URL is in `widget.
 ## Tests
 
 ```bash
-npm install   # zero runtime deps; only node-test-runner for the spec files (devDependency)
-npm test      # runs *.spec.mjs files via node --test
+npm test      # offline renderer tests using Node's built-in test runner
+npm run test:all  # also loads the opt-in deployment test, skipped by default
 ```
 
 Three spec files:
 
 1. **`test_schema_parsing.spec.mjs`** - given a schema, the renderer produces the expected form-field topology.
 2. **`test_render_csv_uploader.spec.mjs`** - the GL Detail CSV uploader specifically renders all required fields.
-3. **`test_production_bundle.spec.mjs`** - **SR #12 sibling at the JS layer.** Fetches the live deployed widget URL; asserts `<form>` element present + required input names present + `widget.json` accessible. This gate runs in CI against the production-deployed URL (per Lesson #40 - hermetic green without production-bundle green is pre-broken).
+3. **`test_production_bundle.spec.mjs`** fetches the deployed host and widget pages and validates the manifest and schema. Set `RUN_PRODUCTION_BUNDLE_TEST=1` to run it; CI enables it after pushes to `main`.
 
 ## License
 

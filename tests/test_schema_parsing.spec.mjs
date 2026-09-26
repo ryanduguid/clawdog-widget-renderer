@@ -132,6 +132,42 @@ test('renderFormFromSchema maps boolean → checkbox', () => {
   assert.equal(input.type, 'checkbox');
 });
 
+test('number fields allow decimals and integer fields retain whole-number steps', () => {
+  const schema = {
+    type: 'object',
+    properties: { amount: { type: 'number' }, count: { type: 'integer' } },
+  };
+  const { form, setValues, getValues } = renderFormFromSchema(schema, null);
+  assert.equal(form.elements.namedItem('amount').step, 'any');
+  assert.equal(form.elements.namedItem('count').step, '1');
+  setValues({ amount: 10.25, count: 2 });
+  assert.deepEqual(getValues(), { amount: 10.25, count: 2 });
+});
+
+test('a required boolean can be false', () => {
+  const schema = {
+    type: 'object',
+    required: ['active'],
+    properties: { active: { type: 'boolean' } },
+  };
+  const { form, setValues, getValues } = renderFormFromSchema(schema, null);
+  setValues({ active: false });
+  assert.notEqual(form.elements.namedItem('active').required, true);
+  assert.deepEqual(getValues(), { active: false });
+});
+
+test('boolean enum values remain booleans', () => {
+  const schema = {
+    type: 'object',
+    properties: { active: { type: 'boolean', enum: [true, false] } },
+  };
+  const { setValues, getValues } = renderFormFromSchema(schema, null);
+  for (const active of [false, true]) {
+    setValues({ active });
+    assert.deepEqual(getValues(), { active });
+  }
+});
+
 test('renderFormFromSchema adds a submit button', () => {
   const schema = { type: 'object', properties: { x: { type: 'string' } } };
   const { form } = renderFormFromSchema(schema, null);

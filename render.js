@@ -68,7 +68,7 @@ function fieldElementForProperty(name, prop, required) {
   } else if (prop.type === 'number' || prop.type === 'integer') {
     input = document.createElement('input');
     input.type = 'number';
-    if (prop.type === 'integer') input.step = '1';
+    input.step = prop.type === 'integer' ? '1' : 'any';
     if (typeof prop.minimum === 'number') input.min = String(prop.minimum);
     if (typeof prop.maximum === 'number') input.max = String(prop.maximum);
   } else if (prop.type === 'boolean') {
@@ -82,7 +82,7 @@ function fieldElementForProperty(name, prop, required) {
 
   input.id = `cw-field-${name}`;
   input.name = name;
-  if (required) input.required = true;
+  if (required && prop.type !== 'boolean') input.required = true;
 
   wrapper.appendChild(input);
 
@@ -142,6 +142,8 @@ function renderFormFromSchema(schema, container) {
       if (!el) continue;
       if (el.type === 'checkbox') {
         values[name] = el.checked;
+      } else if (prop.type === 'boolean') {
+        values[name] = el.value === 'true';
       } else if (el.type === 'file') {
         values[name] = el.files && el.files.length ? el.files[0] : null;
       } else if (prop.type === 'number' || prop.type === 'integer') {
