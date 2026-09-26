@@ -45,7 +45,7 @@ jobs:
           echo "All required entry files present"
 
   production-bundle-gate:
-    name: production-bundle gate (SR #12 sibling)
+    name: 'production-bundle gate (SR #12 sibling)'
     runs-on: ubuntu-latest
     needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
