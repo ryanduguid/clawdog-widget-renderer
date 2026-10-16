@@ -19,6 +19,15 @@ Three load-bearing choices:
 2. **JSON Schema as the contract.** Each widget ships its own `schema.json`; `render.js` reads the schema, produces an HTML form, validates user input client-side, then POSTs to a calculator-API URL named in the widget's manifest.
 3. **Iframe-embeddable + postMessage protocol.** The widget surface is loadable in any iframe. A `postMessage`-based protocol lets a host shell (e.g. `sbrm-global-frontend` via OT #76, or a partner-developer Office add-in via OT #87) receive submission results back from the widget.
 
+The GL Detail uploader captures its parent's HTTP(S) origin from the browser's
+`document.referrer` when submission starts and uses that exact origin for result
+and network-error notifications. An empty, invalid or non-HTTP(S) referrer disables
+host notifications; submission and local result display still work. Hosts that
+suppress referrers or have opaque origins must account for missing notifications.
+This binds delivery to an origin and does not authorise a host or identify a
+particular document on that origin. The existing result body representation is
+preserved: valid JSON is parsed, and other responses remain decoded text.
+
 ## Repo layout
 
 Layout is **flat at repo root** (per mc05-2026-05-28 move-to-root PR) to align with GitHub Pages' `/(root)` source convention + `clawdog-kit` precedent (one repo, one project, no deep src/ nesting):
@@ -75,14 +84,16 @@ The widget should render a form. Submission POSTs to whatever URL is in `widget.
 
 ```bash
 npm install   # zero runtime deps; only node-test-runner for the spec files (devDependency)
-npm test      # runs *.spec.mjs files via node --test
+npm test      # offline schema, renderer and handler tests via node --test
 ```
 
-Three spec files:
+Four spec files:
 
 1. **`test_schema_parsing.spec.mjs`** - given a schema, the renderer produces the expected form-field topology.
 2. **`test_render_csv_uploader.spec.mjs`** - the GL Detail CSV uploader specifically renders all required fields.
 3. **`test_production_bundle.spec.mjs`** - **SR #12 sibling at the JS layer.** Fetches the live deployed widget URL; asserts `<form>` element present + required input names present + `widget.json` accessible. This gate runs in CI against the production-deployed URL (per Lesson #40 - hermetic green without production-bundle green is pre-broken).
+4. **`test_handler_csv_uploader.spec.mjs`** - checks exact parent-origin notifications,
+   missing-referrer behaviour and submission protocol compatibility with stubbed fetches.
 
 ## License
 

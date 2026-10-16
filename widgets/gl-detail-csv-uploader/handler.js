@@ -10,15 +10,29 @@
 //
 // Lessons honoured:
 //   #36 — handler is widget-specific (knows GL Detail field shape); renderer stays generic
-//   #38 — response body is forwarded byte-exact to the host; no paraphrasing
+//   #38 — response body keeps its parsed JSON or decoded text representation
 
 const POST_MESSAGE_TYPE = 'cw-widget-response';
+
+function getParentRecipient() {
+  try {
+    const parent = window.parent;
+    if (!parent || parent === window) return null;
+    const referrer = new URL(document.referrer);
+    if (referrer.protocol !== 'http:' && referrer.protocol !== 'https:') return null;
+    return { parent, origin: referrer.origin };
+  } catch {
+    // An unavailable referrer disables host notifications, not submission.
+    return null;
+  }
+}
 
 async function handleSubmit(values, widgetManifest) {
   if (!widgetManifest || !widgetManifest.calc_api_url) {
     return { ok: false, error: 'widget.json missing calc_api_url' };
   }
 
+  const recipient = getParentRecipient();
   const form = new FormData();
   if (values.entityId) form.set('entity_id', values.entityId);
   if (values.periodUri) form.set('period_uri', values.periodUri);
@@ -37,11 +51,11 @@ async function handleSubmit(values, widgetManifest) {
     const result = { ok: resp.ok, status: resp.status, body };
 
     // Notify host shell (if iframe-embedded) of the response
-    if (window.parent && window.parent !== window) {
+    if (recipient) {
       try {
-        window.parent.postMessage(
+        recipient.parent.postMessage(
           { type: POST_MESSAGE_TYPE, widget: widgetManifest.name, result },
-          '*'
+          recipient.origin
         );
       } catch {
         // postMessage failure is non-fatal
@@ -51,11 +65,11 @@ async function handleSubmit(values, widgetManifest) {
     return result;
   } catch (err) {
     const errResult = { ok: false, error: String(err && err.message ? err.message : err) };
-    if (window.parent && window.parent !== window) {
+    if (recipient) {
       try {
-        window.parent.postMessage(
+        recipient.parent.postMessage(
           { type: POST_MESSAGE_TYPE, widget: widgetManifest.name, result: errResult },
-          '*'
+          recipient.origin
         );
       } catch {
         // postMessage failure is non-fatal
