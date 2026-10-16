@@ -28,22 +28,9 @@ const FIELD_TYPE_BY_FORMAT = {
   uri: 'url',
 };
 
-function fieldElementForProperty(name, prop, required) {
-  const wrapper = document.createElement('div');
-  wrapper.className = 'cw-field';
-  wrapper.dataset.name = name;
+let fieldSequence = 0;
 
-  const label = document.createElement('label');
-  label.htmlFor = `cw-field-${name}`;
-  label.textContent = prop.title || name;
-  if (required) {
-    const star = document.createElement('span');
-    star.className = 'cw-required';
-    star.textContent = ' *';
-    label.appendChild(star);
-  }
-  wrapper.appendChild(label);
-
+function inputElementForProperty(prop) {
   let input;
 
   if (prop.enum && Array.isArray(prop.enum)) {
@@ -80,7 +67,27 @@ function fieldElementForProperty(name, prop, required) {
     input.type = 'text';
   }
 
-  input.id = `cw-field-${name}`;
+  return input;
+}
+
+function fieldElementForProperty(name, prop, required) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'cw-field';
+  wrapper.dataset.name = name;
+
+  const label = document.createElement('label');
+  label.textContent = prop.title || name;
+  if (required) {
+    const star = document.createElement('span');
+    star.className = 'cw-required';
+    star.textContent = ' *';
+    label.appendChild(star);
+  }
+  wrapper.appendChild(label);
+
+  const input = inputElementForProperty(prop);
+  input.id = `cw-field-${++fieldSequence}`;
+  label.htmlFor = input.id;
   input.name = name;
   if (required && prop.type !== 'boolean') input.required = true;
 
@@ -104,6 +111,8 @@ function renderFormFromSchema(schema, container) {
   const requiredSet = new Set(Array.isArray(schema.required) ? schema.required : []);
 
   const form = document.createElement('form');
+  const append = form.appendChild.bind(form);
+  const controls = new Map();
   form.className = 'cw-form';
   form.noValidate = false;
 
@@ -111,18 +120,19 @@ function renderFormFromSchema(schema, container) {
     const heading = document.createElement('h2');
     heading.className = 'cw-form-title';
     heading.textContent = schema.title;
-    form.appendChild(heading);
+    append(heading);
   }
   if (schema.description) {
     const desc = document.createElement('p');
     desc.className = 'cw-form-description';
     desc.textContent = schema.description;
-    form.appendChild(desc);
+    append(desc);
   }
 
   for (const [name, prop] of Object.entries(schema.properties)) {
     const field = fieldElementForProperty(name, prop, requiredSet.has(name));
-    form.appendChild(field);
+    controls.set(name, field.querySelector('input') || field.querySelector('select'));
+    append(field);
   }
 
   const submitWrap = document.createElement('div');
@@ -131,34 +141,36 @@ function renderFormFromSchema(schema, container) {
   submitBtn.type = 'submit';
   submitBtn.textContent = 'Submit';
   submitWrap.appendChild(submitBtn);
-  form.appendChild(submitWrap);
+  append(submitWrap);
 
   if (container) container.appendChild(form);
 
   function getValues() {
-    const values = {};
+    const entries = [];
     for (const [name, prop] of Object.entries(schema.properties)) {
-      const el = form.elements.namedItem(name);
+      const el = controls.get(name);
       if (!el) continue;
+      let value;
       if (el.type === 'checkbox') {
-        values[name] = el.checked;
+        value = el.checked;
       } else if (prop.type === 'boolean') {
-        values[name] = el.value === 'true';
+        value = el.value === 'true';
       } else if (el.type === 'file') {
-        values[name] = el.files && el.files.length ? el.files[0] : null;
+        value = el.files && el.files.length ? el.files[0] : null;
       } else if (prop.type === 'number' || prop.type === 'integer') {
-        values[name] = el.value === '' ? null : Number(el.value);
+        value = el.value === '' ? null : Number(el.value);
       } else {
-        values[name] = el.value;
+        value = el.value;
       }
+      entries.push([name, value]);
     }
-    return values;
+    return Object.fromEntries(entries);
   }
 
   function setValues(values) {
     if (!values || typeof values !== 'object') return;
     for (const [name, v] of Object.entries(values)) {
-      const el = form.elements.namedItem(name);
+      const el = controls.get(name);
       if (!el) continue;
       if (el.type === 'checkbox') {
         el.checked = Boolean(v);

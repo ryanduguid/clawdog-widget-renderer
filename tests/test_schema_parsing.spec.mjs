@@ -195,3 +195,52 @@ test('getValues + setValues round-trips object data', () => {
   assert.equal(out.active, true);
 });
 
+test('getValues retains schema names that match object prototype properties', () => {
+  const schema = {
+    type: 'object',
+    properties: JSON.parse('{"__proto__":{"type":"string"},"constructor":{"type":"integer"},"toString":{"type":"boolean"}}'),
+  };
+  const { setValues, getValues } = renderFormFromSchema(schema, null);
+  const expected = Object.fromEntries([
+    ['__proto__', 'literal value'], ['constructor', 7], ['toString', false],
+  ]);
+  setValues(expected);
+  const values = getValues();
+  assert.deepEqual(values, expected);
+  assert.equal(Object.getPrototypeOf(values), Object.prototype);
+  assert.equal(Object.hasOwn(values, '__proto__'), true);
+});
+
+test('a file field named __proto__ cannot replace the values object prototype', () => {
+  const schema = {
+    type: 'object',
+    properties: JSON.parse('{"__proto__":{"type":"string","contentMediaType":"text/csv"}}'),
+  };
+  const { form, getValues } = renderFormFromSchema(schema, null);
+  const file = new File(['column\nvalue'], 'synthetic.csv', { type: 'text/csv' });
+  form.elements.namedItem('__proto__').files = [file];
+  const values = getValues();
+  assert.equal(Object.getPrototypeOf(values), Object.prototype);
+  assert.equal(Object.hasOwn(values, '__proto__'), true);
+  assert.equal(Object.getOwnPropertyDescriptor(values, '__proto__').value, file);
+});
+
+test('schema names round-trip independently of form member and control IDs', () => {
+  const names = ['', 'x', 'cw-field-x', 'elements', 'appendChild'];
+  const properties = Object.fromEntries(names.map(name => [name, { type: 'string' }]));
+  const expected = Object.fromEntries(names.map((name, index) => [name, `value${index}`]));
+  const { getValues, setValues } = renderFormFromSchema({ type: 'object', properties }, null);
+  setValues(expected);
+  assert.deepEqual(getValues(), expected);
+});
+
+test('repeated forms give each control its own matching label ID', () => {
+  const schema = { type: 'object', properties: { same: { type: 'string' } } };
+  const first = renderFormFromSchema(schema, null).form;
+  const second = renderFormFromSchema(schema, null).form;
+  const firstInput = first.elements.namedItem('same');
+  const secondInput = second.elements.namedItem('same');
+  assert.notEqual(firstInput.id, secondInput.id);
+  assert.equal(first.querySelector('label').htmlFor, firstInput.id);
+  assert.equal(second.querySelector('label').htmlFor, secondInput.id);
+});
