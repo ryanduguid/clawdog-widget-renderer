@@ -86,8 +86,9 @@ function fieldElementForProperty(name, prop, required) {
   wrapper.appendChild(label);
 
   const input = inputElementForProperty(prop);
-  input.id = `cw-field-${++fieldSequence}`;
-  label.htmlFor = input.id;
+  const id = `cw-field-${++fieldSequence}`;
+  input.id = id;
+  label.htmlFor = id;
   input.name = name;
   if (required && prop.type !== 'boolean') input.required = true;
 
