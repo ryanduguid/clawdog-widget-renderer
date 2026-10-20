@@ -2,8 +2,8 @@
 
 **Fork status**
 
-[![Fork code quality](https://app.codacy.com/project/badge/Grade/e7d24f26654246988264b84a0c96bb76?branch=main)](https://app.codacy.com/gh/ryanduguid/clawdog-widget-renderer/dashboard)
-[![Fork ci](https://github.com/ryanduguid/clawdog-widget-renderer/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ryanduguid/clawdog-widget-renderer/actions/workflows/ci.yml)
+[![Fork code quality](https://img.shields.io/codacy/grade/e7d24f26654246988264b84a0c96bb76/main?style=flat&labelColor=000000)](https://app.codacy.com/gh/ryanduguid/clawdog-widget-renderer/dashboard)
+[![Fork ci](https://img.shields.io/github/actions/workflow/status/ryanduguid/clawdog-widget-renderer/ci.yml?branch=main&label=ci&style=flat&labelColor=000000)](https://github.com/ryanduguid/clawdog-widget-renderer/actions/workflows/ci.yml)
 
 > Schema-driven HTML widget renderer for ClawDog calculator surfaces. Vanilla JS, no framework, iframe-embeddable.
 
